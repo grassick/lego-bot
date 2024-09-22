@@ -1,27 +1,50 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import LegoBoost from './boost/legoBoost'
 
 function App() {
-  const [connected, setConnected] = useState(false)
+  const [boost, setBoost] = useState<LegoBoost | null>(null)
 
-  const handleConnectAndFlash = async () => {
-    const boost = new LegoBoost()
-    await boost.connect()
-    setConnected(true)
-    await boost.ledAsync('red')
-    await new Promise(resolve => setTimeout(resolve, 500))
-    await boost.ledAsync('green')
-    await new Promise(resolve => setTimeout(resolve, 500))
-    await boost.ledAsync('blue')
+  const handleConnect = async () => {
+    const newBoost = new LegoBoost()
+    await newBoost.connect()
+    setBoost(newBoost)
+  }
+
+  const handleDisconnect = async () => {
+    if (boost) {
+      await boost.disconnect()
+      setBoost(null)
+    }
+  }
+
+  const handleFlash = async () => {
+    if (boost) {
+      await boost.ledAsync('red')
+      await new Promise(resolve => setTimeout(resolve, 500))
+      await boost.ledAsync('green')
+      await new Promise(resolve => setTimeout(resolve, 500))
+      await boost.ledAsync('blue')
+    }
   }
 
   return (
-    <button onClick={handleConnectAndFlash}>
-      { connected ? 'Connected' : 'Connect to LEGO Boost' }
-    </button>
+    <div>
+      {!boost ? (
+        <button onClick={handleConnect}>
+          Connect to LEGO Boost
+        </button>
+      ) : (
+        <>
+          <button onClick={handleDisconnect}>
+            Disconnect
+          </button>
+          <button onClick={handleFlash}>
+            Flash LED
+          </button>
+        </>
+      )}
+    </div>
   )
 }
 
