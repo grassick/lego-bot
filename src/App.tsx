@@ -8,9 +8,17 @@ import { useStableCallback } from './useStableCallback'
 const checkAndSetApiKey = () => {
   const storedApiKey = localStorage.getItem('geminiFlashApiKey')
   if (!storedApiKey) {
-    const apiKey = prompt("Please enter your Gemini Flash API key:")
-    if (apiKey) {
-      localStorage.setItem('geminiFlashApiKey', apiKey)
+    if (window.location.search.includes("?apiKey=")) {
+      const apiKey = window.location.search.split("?apiKey=")[1]
+      if (apiKey) {
+        localStorage.setItem('geminiFlashApiKey', apiKey)
+      }
+    }
+    else {
+      const apiKey = prompt("Please enter your Gemini Flash API key:")
+      if (apiKey) {
+        localStorage.setItem('geminiFlashApiKey', apiKey)
+      }
     }
   }
 }
@@ -108,16 +116,14 @@ function App() {
         {
           text: `
           You are a friendly pet robot. The image above is your camera view. Decide what action to take based on the image.
-          You can do any of the following actions: speak, move forward, move backward, turn left, turn right.
-
+          Decide what to do next based on the image and your recent actions. You are curious and want to explore without running into anything.
+          
           Your recent actions: ${JSON.stringify(pastActions.slice(-10))}
 
-          Don't repeat actions, unless the situation has changed.
-
-          Output action in JSON format as follows:
+          Output an action in JSON format as follows:
 
           { 
-            action: "speak" | "move forward" | "move backward" | "turn left" | "turn right", 
+            action: "speak" | "move forward" | "move backward" | "turn left" | "turn right" | "stop", 
             thought: "reasoning for the action",
             speech: "message to say" (for speak action) 
           }
